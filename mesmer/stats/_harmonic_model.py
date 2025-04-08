@@ -84,6 +84,7 @@ def predict_harmonic_model(
     yearly_predictor: xr.DataArray,
     coeffs: xr.DataArray,
     time: xr.DataArray,
+    *,
     time_dim: str = "time",
 ) -> xr.DataArray:
     """construct a Fourier Series from yearly predictors with fitted coeffs.

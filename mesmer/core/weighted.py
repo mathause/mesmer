@@ -49,7 +49,7 @@ def lat_weights(lat_coords):
     return weights
 
 
-def weighted_mean(data, weights, dims=None):
+def weighted_mean(data, weights, *, dims=None):
     """weighted mean - convenience function which ignores data_vars missing dims
 
     Parameters
@@ -81,7 +81,7 @@ def weighted_mean(data, weights, dims=None):
     return _weighted_if_dim(data, weights, dims)
 
 
-def global_mean(data, weights=None, x_dim="lon", y_dim="lat"):
+def global_mean(data, weights=None, *, x_dim="lon", y_dim="lat"):
     """calculate global weighted mean
 
     Parameters
@@ -111,7 +111,7 @@ def global_mean(data, weights=None, x_dim="lon", y_dim="lat"):
 
 
 def equal_scenario_weights_from_datatree(
-    dt: xr.DataTree, ens_dim: str = "member", time_dim: str = "time"
+    dt: xr.DataTree, *, ens_dim: str = "member", time_dim: str = "time"
 ) -> xr.DataTree:
     """
     Create a DataTree isomorphic to ``dt``, holding the weights for each scenario to weight the ensemble members of each

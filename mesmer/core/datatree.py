@@ -6,7 +6,7 @@ from mesmer.core._datatreecompat import map_over_datasets
 
 
 def _extract_single_dataarray_from_dt(
-    dt: xr.DataTree, name: str = "node"
+    dt: xr.DataTree, *, name: str = "node"
 ) -> xr.DataArray:
     """
     Extract a single DataArray from a DataTree node, holding a ``Dataset`` with one ``DataArray``.
@@ -28,7 +28,7 @@ def _extract_single_dataarray_from_dt(
 
 
 def collapse_datatree_into_dataset(
-    dt: xr.DataTree, dim: str, **concat_kwargs
+    dt: xr.DataTree, *, dim: str, **concat_kwargs
 ) -> xr.Dataset:
     """
     Take a ``DataTree`` and collapse **all its subtrees** into a single ``xr.Dataset`` along dim.

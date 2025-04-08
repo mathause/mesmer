@@ -90,7 +90,7 @@ def trend_data_1D(n_timesteps=30, intercept=0.0, slope=1.0, scale=1.0):
 
 
 def trend_data_2D(
-    n_timesteps=30, n_lat=3, n_lon=2, intercept=0.0, slope=1.0, scale=1.0
+    *, n_timesteps=30, n_lat=3, n_lon=2, intercept=0.0, slope=1.0, scale=1.0
 ):
 
     n_cells = n_lat * n_lon
@@ -112,7 +112,7 @@ def trend_data_2D(
 
 
 def trend_data_3D(
-    n_timesteps=30, n_lat=3, n_lon=2, intercept=0.0, slope=1.0, scale=1.0
+    *, n_timesteps=30, n_lat=3, n_lon=2, intercept=0.0, slope=1.0, scale=1.0
 ):
 
     data = trend_data_2D(

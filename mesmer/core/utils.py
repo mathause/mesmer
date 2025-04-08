@@ -108,7 +108,7 @@ def _assert_annual_data(time):
 
 
 def upsample_yearly_data(
-    yearly_data: xr.DataArray, monthly_time: xr.DataArray, time_dim: str = "time"
+    yearly_data: xr.DataArray, monthly_time: xr.DataArray, *, time_dim: str = "time"
 ):
     """Upsample yearly data to monthly resolution by repeating yearly values.
 
