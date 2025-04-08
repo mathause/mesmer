@@ -117,7 +117,7 @@ def predict_harmonic_model(
         shape=(time.size // 12, n_gridcells),
     )
     upsampled_y = mesmer.core.utils.upsample_yearly_data(
-        yearly_predictor, time, time_dim
+        yearly_predictor, time, time_dim=time_dim
     )
 
     predictions = upsampled_y + xr.apply_ufunc(

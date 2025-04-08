@@ -107,7 +107,7 @@ def global_mean(data, weights=None, *, x_dim="lon", y_dim="lat"):
     if weights is None:
         weights = lat_weights(data[y_dim])
 
-    return weighted_mean(data, weights, [x_dim, y_dim])
+    return weighted_mean(data, weights, dims=(x_dim, y_dim))
 
 
 def equal_scenario_weights_from_datatree(
