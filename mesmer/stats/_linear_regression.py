@@ -61,7 +61,9 @@ class LinearRegression:
     def predict(
         self,
         predictors: dict[str, xr.DataArray] | xr.DataTree | xr.Dataset,
+        *,
         exclude: str | set[str] | None = None,
+        only: str | set[str] | None = None,
     ) -> xr.DataArray:
         """
         Predict using the linear model.
@@ -74,7 +76,11 @@ class LinearRegression:
             is a ``xr.Dataset``, it must have each predictor as a single ``DataArray``.
         exclude : str or set of str, default: None
             Set of variables to exclude in the prediction. May include ``"intercept"``
-            to initialize the prediction with 0.
+            to initialize the prediction with 0. Mutually exclusive with ``only``.
+        only :  str or set of str, default: None
+            Set of variables to include in the prediction. May include ``"intercept"``
+            otherwise the prediction is initialized with 0. Mutually exclusive with ``only``.
+
 
         Returns
         -------
@@ -84,26 +90,34 @@ class LinearRegression:
 
         params = self.params
 
+        if exclude is not None and only is not None:
+            raise TypeError("Cannot set both `exclude` and `only`.")
+
         exclude = _to_set(exclude)
+        only = _to_set(only)
 
         non_predictor_vars = {"intercept", "weights", "fit_intercept"}
-        required_predictors = set(params.data_vars) - non_predictor_vars - exclude
+        used_predictors = set(params.data_vars) - non_predictor_vars - exclude
         available_predictors = set(predictors.keys()) - exclude
 
-        if required_predictors - available_predictors:
-            missing = sorted(required_predictors - available_predictors)
+        if only:
+            used_predictors = only
+
+        if used_predictors - available_predictors:
+            missing = sorted(used_predictors - available_predictors)
             missing_preds = "', '".join(missing)
             raise ValueError(f"Missing predictors: '{missing_preds}'")
 
-        if available_predictors - required_predictors:
-            superfluous = sorted(map(str, available_predictors - required_predictors))
+        #
+        if not only and available_predictors - used_predictors:
+            superfluous = sorted(map(str, available_predictors - used_predictors))
             superfluous_preds = "', '".join(superfluous)
             raise ValueError(
                 f"Superfluous predictors: '{superfluous_preds}', either params",
-                "for this predictor are missing or you forgot to add it to 'exclude'.",
+                "for this predictor are missing or you forgot to add it to `exclude`.",
             )
 
-        if "intercept" in exclude:
+        if "intercept" in exclude or (only and "intercept" not in only):
             prediction = xr.zeros_like(params.intercept)
         else:
             prediction = params.intercept
@@ -115,7 +129,7 @@ class LinearRegression:
                 lambda ds: ds.rename({var: "pred" for var in ds.data_vars}), predictors
             )
 
-        for key in required_predictors:
+        for key in used_predictors:
 
             # TODO: fix once .transpose() is possible for DataTree
             signal = predictors[key] * params[key]
