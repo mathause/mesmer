@@ -7,12 +7,13 @@
 Functions to train monthly trend module of MESMER-M
 """
 
-import warnings
 
 import numpy as np
 import statsmodels.api as sm
 import xarray as xr
 from joblib import Parallel, delayed
+
+from mesmer._core.utils import _ignore_warnings
 
 
 # haven't properly commented this yet - WIP
@@ -27,41 +28,28 @@ class GammaGLMXarray:
         self.n_jobs = n_jobs
         self.params_ = None
 
+    @_ignore_warnings(
+        [
+            "Elastic net fitting did not converge",
+            "divide by zero encountered",
+            "invalid value encountered",
+        ]
+    )
     def _fit_single(self, X, y):
         y_max = y.max()
 
-        glm = sm.GLM(
-            y,
-            X,
-            family=sm.families.Gamma(sm.families.links.Log()),
-        )
+        glm = sm.GLM(y, X, family=sm.families.Gamma(sm.families.links.Log()))
 
         last_res = None
 
         for alpha in self.alphas:
             try:
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(
-                        "ignore",
-                        message="Elastic net fitting did not converge",
-                        category=UserWarning,
-                    )
-                    warnings.filterwarnings(
-                        "ignore",
-                        category=RuntimeWarning,
-                        message="divide by zero encountered",
-                    )
-                    warnings.filterwarnings(
-                        "ignore",
-                        category=RuntimeWarning,
-                        message="invalid value encountered",
-                    )
-                    res = glm.fit_regularized(
-                        alpha=alpha,
-                        L1_wt=self.l1_wt,
-                        refit=False,
-                    )
-                    last_res = res
+                res = glm.fit_regularized(
+                    alpha=alpha,
+                    L1_wt=self.l1_wt,
+                    refit=False,
+                )
+                last_res = res
             except Exception:
                 continue
 
