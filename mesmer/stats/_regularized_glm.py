@@ -18,11 +18,21 @@ from mesmer._core.utils import _ignore_warnings
 
 # haven't properly commented this yet - WIP
 class GammaGLMXarray:
-    """
-    Gamma GLM (log link), fitted independently for each (gridcell, month).
-    """
 
     def __init__(self, alphas, l1_wt=0.0001, n_jobs=-1):
+        """
+        Gamma GLM (log link), fitted independently for each (gridcell, month).
+
+        alpha : list of scalar or array_like
+            The penalty weight.  If a scalar, the same penalty weight
+            applies to all variables in the model.  If a vector, it
+            must have the same length as `params`, and contains a
+            penalty weight for each coefficient.
+        L1_wt  : float
+            Must be in [0, 1].  The L1 penalty has weight L1_wt and the
+            L2 penalty has weight 1 - L1_wt.
+        """
+
         self.alphas = alphas
         self.l1_wt = l1_wt
         self.n_jobs = n_jobs
@@ -38,7 +48,10 @@ class GammaGLMXarray:
     def _fit_single(self, X, y):
         y_max = y.max()
 
-        glm = sm.GLM(y, X, family=sm.families.Gamma(sm.families.links.Log()))
+        family = sm.families.Gamma
+        link = sm.families.links.Log
+
+        glm = sm.GLM(y, X, family=family(link=link))
 
         last_res = None
 
@@ -67,6 +80,8 @@ class GammaGLMXarray:
         """
         Estimate regression coefficients.
 
+        Parameters
+        ----------
         tas, tas_sq, pr:
             DataArrays with dims (gridcell, year, month)
 
